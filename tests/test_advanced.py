@@ -1,6 +1,11 @@
+import base64
+import hashlib
+import json
+
 from eth_account import Account
 from eth_account.messages import encode_typed_data
 from pulse_ap2_x402_verifier import advanced as MODULE
+from pulse_ap2_x402_verifier import preflight
 
 
 
@@ -94,3 +99,39 @@ def test_x402_extension_schema_accepts_complete_binding_shape():
     }
 
     assert MODULE._x402_schema_is_valid(case) is True
+
+
+def test_failure_codes_have_a_deterministic_phase_order():
+    codes = [
+        "AP2_X402_COMMERCE_BINDING_MISMATCH",
+        "AP2_OPEN_MANDATE_CLAIMS_HASH_MISMATCH",
+        "AP2_X402_PAYEE_MISMATCH",
+        "AP2_CLOSED_MANDATE_CLAIMS_HASH_MISMATCH",
+    ]
+
+    assert MODULE._ordered_failure_codes(codes) == [
+        "AP2_CLOSED_MANDATE_CLAIMS_HASH_MISMATCH",
+        "AP2_OPEN_MANDATE_CLAIMS_HASH_MISMATCH",
+        "AP2_X402_PAYEE_MISMATCH",
+        "AP2_X402_COMMERCE_BINDING_MISMATCH",
+    ]
+
+
+def test_claims_hash_uses_ascii_json_escaping_for_signed_artifacts():
+    claims = {"description": "Caffè"}
+    serialized = json.dumps(claims, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+    expected = base64.urlsafe_b64encode(hashlib.sha256(serialized.encode("utf-8")).digest()).decode("ascii").rstrip("=")
+
+    assert MODULE._canonical_claims_hash(claims) == expected
+
+
+def test_fixture_expectations_are_removed_before_evaluation():
+    source = {
+        "id": "case",
+        "expected": {"consistent": True},
+        "ap2": {"expected": "not available to the evaluator"},
+    }
+
+    prepared = preflight._remove_non_evaluation_fields(source)
+
+    assert prepared == {"id": "case", "ap2": {}}

@@ -23,6 +23,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Install verifier dependencies
         run: |
           python -m pip install --upgrade pip
@@ -50,12 +55,18 @@ jobs:
           print(f"Evaluated {report['cases']} corpus cases")
           PY
 
-      - name: Generate conformance record
+      - name: Generate formal reproduction record
         run: |
-          python scripts/generate_conformance_record.py pulse-advanced-report.json \
-            --output conformance-record.md \
-            --pulse-commit "$PULSE_COMMIT" \
-            --fixture-sha256 "$PULSE_FIXTURE_SHA256"
+          python scripts/generate_reproduction_record.py pulse-advanced-report.json \
+            --output reproduction.json > reproduction-record-sha256.txt
+
+      - name: Validate against the official reproduction checker
+        run: |
+          cd pulse-corpus
+          npm ci
+          npx tsx src/evidence-cli.ts reproduction fixtures/v0.3/cases.json ../reproduction.json > ../official-reproduction-check.json
+          cd ..
+          python scripts/verify_official_reproduction.py official-reproduction-check.json
 
       - name: Upload conformance record
         uses: actions/upload-artifact@v4
@@ -64,6 +75,8 @@ jobs:
           path: |
             pulse-advanced-report.json
             pulse-advanced-output.json
-            conformance-record.md
+            reproduction.json
+            reproduction-record-sha256.txt
+            official-reproduction-check.json
           if-no-files-found: error
           retention-days: 90

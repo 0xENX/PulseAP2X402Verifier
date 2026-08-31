@@ -23,11 +23,17 @@ python -m pip install --upgrade pip
 python -m pip install -e '.[test]'
 python -m pytest -q
 python -m pulse_ap2_x402_verifier.advanced pulse-corpus/fixtures/v0.3/cases.json --report pulse-advanced-report.json
+python scripts/generate_reproduction_record.py pulse-advanced-report.json --output reproduction.json
+cd pulse-corpus
+npm ci
+npx tsx src/evidence-cli.ts reproduction fixtures/v0.3/cases.json ../reproduction.json > ../official-reproduction-check.json
+cd ..
+python scripts/verify_official_reproduction.py official-reproduction-check.json
 ```
 
-The generated report contains derived results only. Review it before publishing it or using it as external evidence.
+The final command exits with a nonzero status unless the official Pulse checker returns both `valid: true` and `automatedChecksPassed: true`. The generated record contains derived results only.
 
-The GitHub Actions workflow also produces a `conformance-record.md` artifact containing the verifier commit, immutable workflow URL, corpus identity, report hash, evaluation counts, and verification boundary.
+The GitHub Actions workflow runs the same official validation and publishes the evaluator report, formal reproduction record, record SHA-256, and official checker output as one artifact. A green workflow therefore requires a valid official reproduction record, not merely a completed evaluator process.
 
 ## Publication status
 

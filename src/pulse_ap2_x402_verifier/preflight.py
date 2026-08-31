@@ -246,7 +246,19 @@ def load_bundle(path: Path, required_sha256: str) -> list[dict[str, Any]]:
     cases = data.get("cases")
     if not isinstance(cases, list) or len(cases) != 80:
         raise ValueError("Fixture bundle must contain exactly 80 cases")
-    return [case for case in cases if isinstance(case, dict)]
+    return [_remove_non_evaluation_fields(case) for case in cases if isinstance(case, dict)]
+
+
+def _remove_non_evaluation_fields(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_remove_non_evaluation_fields(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    return {
+        key: _remove_non_evaluation_fields(item)
+        for key, item in value.items()
+        if key != "expected"
+    }
 
 
 def run(path: Path, required_sha256: str = PINNED_FIXTURE_SHA256) -> dict[str, Any]:

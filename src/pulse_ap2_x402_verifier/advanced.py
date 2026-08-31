@@ -23,18 +23,46 @@ SIGNATURE = re.compile(r"^0x[0-9a-fA-F]{130}$")
 SECP256K1_HALF_ORDER = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0
 
 
+FAILURE_CODE_ORDER = {
+    "AP2_RECEIPT_UNVERIFIED": 10,
+    "AP2_CLOSED_MANDATE_CLAIMS_HASH_MISMATCH": 20,
+    "AP2_OPEN_MANDATE_CLAIMS_HASH_MISMATCH": 30,
+    "AP2_OPEN_PRESET_MISMATCH": 40,
+    "AP2_CLOSED_TRANSACTION_ID_MISMATCH": 50,
+    "AP2_PAYMENT_REFERENCE_MISMATCH": 60,
+    "AP2_RECEIPT_TRANSACTION_MISMATCH": 70,
+    "AP2_RECEIPT_REFERENCE_MISMATCH": 80,
+    "AP2_RECEIPT_NOT_SUCCESSFUL": 90,
+    "AP2_UNSUPPORTED_CONSTRAINT": 100,
+    "AP2_X402_TIMEOUT_MISMATCH": 110,
+    "AP2_X402_PAYEE_MISMATCH": 120,
+    "AP2_X402_COMMERCE_BINDING_MISMATCH": 130,
+}
+
+
 def _b64url_sha256(value: str) -> str:
     digest = hashlib.sha256(value.encode("utf-8")).digest()
     return base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
 
 
 def _canonical_claims_hash(value: Any) -> str:
-    serialized = json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    serialized = json.dumps(value, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
     return _b64url_sha256(serialized)
 
 
 def _as_dict(value: Any) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
+
+
+def _ordered_failure_codes(codes: list[str]) -> list[str]:
+    unique = list(dict.fromkeys(codes))
+    return [
+        code
+        for _, code in sorted(
+            enumerate(unique),
+            key=lambda item: (FAILURE_CODE_ORDER.get(item[1], 1_000), item[0]),
+        )
+    ]
 
 
 def _jwt_payload(token: str) -> dict[str, Any]:
@@ -261,7 +289,7 @@ def evaluate_advanced_case(case: dict[str, Any]) -> dict[str, Any]:
     failure_codes.extend(_verify_ap2(case))
     failure_codes.extend(_verify_all_allowed_instruments(case))
     failure_codes.extend(_verify_eip3009(case))
-    failure_codes = list(dict.fromkeys(failure_codes))
+    failure_codes = _ordered_failure_codes(failure_codes)
     return {
         "case_id": case.get("id"),
         "consistent": not failure_codes,
