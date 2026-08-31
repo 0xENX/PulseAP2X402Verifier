@@ -50,6 +50,13 @@ jobs:
           print(f"Evaluated {report['cases']} corpus cases")
           PY
 
+      - name: Generate conformance record
+        run: |
+          python scripts/generate_conformance_record.py pulse-advanced-report.json \
+            --output conformance-record.md \
+            --pulse-commit "$PULSE_COMMIT" \
+            --fixture-sha256 "$PULSE_FIXTURE_SHA256"
+
       - name: Upload conformance record
         uses: actions/upload-artifact@v4
         with:
@@ -57,5 +64,6 @@ jobs:
           path: |
             pulse-advanced-report.json
             pulse-advanced-output.json
+            conformance-record.md
           if-no-files-found: error
           retention-days: 90

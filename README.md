@@ -27,6 +27,8 @@ python -m pulse_ap2_x402_verifier.advanced pulse-corpus/fixtures/v0.3/cases.json
 
 The generated report contains derived results only. Review it before publishing it or using it as external evidence.
 
+The GitHub Actions workflow also produces a `conformance-record.md` artifact containing the verifier commit, immutable workflow URL, corpus identity, report hash, evaluation counts, and verification boundary.
+
 ## Publication status
 
 This repository is intended to be published only after an explicit disclosure review. Until then, it is a local preparation workspace and does not constitute a public qualification claim.
