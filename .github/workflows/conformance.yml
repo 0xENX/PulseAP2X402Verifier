@@ -1,0 +1,61 @@
+name: Pulse AP2 x402 conformance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PULSE_COMMIT: e06a6cbfe3ddb965c8fc70f50838f5014ec2038e
+      PULSE_FIXTURE_SHA256: 8f40be1bdc3d4458f758100e91b418b6a335c5d8d358723f118e2d3e1ad84ee0
+      PULSE_REPOSITORY: https://github.com/shibutatsu/pulse-ap2-x402-conformance.git
+    steps:
+      - name: Check out verifier
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install verifier dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e '.[test]'
+
+      - name: Obtain pinned public corpus
+        run: |
+          git clone "$PULSE_REPOSITORY" pulse-corpus
+          git -C pulse-corpus checkout --detach "$PULSE_COMMIT"
+          test "$(git -C pulse-corpus rev-parse HEAD)" = "$PULSE_COMMIT"
+          test "$(sha256sum pulse-corpus/fixtures/v0.3/cases.json | awk '{print $1}')" = "$PULSE_FIXTURE_SHA256"
+
+      - name: Run evaluator and unit tests
+        run: |
+          python -m pytest -q
+          python -m pulse_ap2_x402_verifier.advanced pulse-corpus/fixtures/v0.3/cases.json --report pulse-advanced-report.json > pulse-advanced-output.json
+
+      - name: Verify corpus coverage
+        run: |
+          python - <<'PY'
+          import json
+          report = json.load(open("pulse-advanced-report.json", encoding="utf-8"))
+          if report["cases"] != 80 or report["consistent"] + report["inconsistent"] != 80:
+              raise SystemExit("The complete corpus was not evaluated")
+          print(f"Evaluated {report['cases']} corpus cases")
+          PY
+
+      - name: Upload conformance record
+        uses: actions/upload-artifact@v4
+        with:
+          name: pulse-ap2-x402-conformance-${{ github.sha }}
+          path: |
+            pulse-advanced-report.json
+            pulse-advanced-output.json
+          if-no-files-found: error
+          retention-days: 90
