@@ -2,9 +2,11 @@
 
 import argparse
 import base64
+import contextlib
 import hashlib
 import json
 import re
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -302,7 +304,8 @@ def main() -> int:
     parser.add_argument("--report", type=Path, help="Optional JSON report path")
     args = parser.parse_args()
     try:
-        report = run(args.fixture, args.sha256)
+        with contextlib.redirect_stdout(sys.stderr):
+            report = run(args.fixture, args.sha256)
     except (OSError, ValueError, json.JSONDecodeError, RuntimeError) as exc:
         parser.error(str(exc))
     serialized = json.dumps(report, indent=2, sort_keys=True)
@@ -310,7 +313,7 @@ def main() -> int:
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(serialized + "\n", encoding="utf-8")
-        print(f"Report written to {args.report}")
+        print(f"Report written to {args.report}", file=sys.stderr)
     return 0
 
 
