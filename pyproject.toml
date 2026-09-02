@@ -7,6 +7,8 @@ name = "pulse-ap2-x402-verifier"
 version = "0.1.0"
 description = "Independent offline evaluation for the pinned Pulse AP2 to x402 corpus"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 dependencies = [
   "ap2 @ git+https://github.com/google-agentic-commerce/AP2.git@e1ea56db72a6385bce3e5c1112b3a56ce60acb43",
   "eth-account==0.14.0",

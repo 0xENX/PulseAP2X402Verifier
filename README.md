@@ -38,3 +38,11 @@ The GitHub Actions workflow runs the same official validation and publishes the 
 ## Publication status
 
 This repository is intended to be published only after an explicit disclosure review. Until then, it is a local preparation workspace and does not constitute a public qualification claim.
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE). See [NOTICE](NOTICE).
+
+The Pulse AP2 to x402 conformance corpus is a separate work under its own
+license and is not redistributed here; it is obtained at the pinned commit by
+following the reproduction steps above.
