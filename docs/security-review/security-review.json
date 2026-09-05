@@ -1,0 +1,67 @@
+{
+  "recordVersion": "pulse-independent-security-review/0.1",
+  "reviewedCommit": "e06a6cbfe3ddb965c8fc70f50838f5014ec2038e",
+  "reviewedAt": "2026-09-05T00:00:00Z",
+  "reviewer": {
+    "name": "Enrico De Vito",
+    "organization": "TrustedPAI",
+    "profileUrl": "https://github.com/0xENX",
+    "independentOfPrimeBeat": true
+  },
+  "scope": [
+    "Raw JSON schemas, unsafe object keys, unknown fields, source pins and JCS/SHA-256 input integrity",
+    "Full 80-case corpus decisions and ordered failure codes",
+    "AP2 SD-JWT chain, key binding, disclosures, trust anchors, time, audience, nonce and Payment Receipt",
+    "Signed constraints and AP2-to-x402 field agreement",
+    "x402 accepted payload, settlement fields and unsupported extensions",
+    "EIP-712 and EIP-3009 construction, low-s form, recovery byte and payer recovery",
+    "Evidence validators, confirmation policy and the read-only public-EVM receipt path",
+    "Pinned AP2 artifact regeneration and verification pipeline",
+    "Locked dependencies, CI, mutation evidence and local-only behaviour"
+  ],
+  "method": [
+    "Manual source review of the frozen commit",
+    "Adversarial harness outside the frozen checkout, one mutated element per case with a negative control",
+    "Recomputation of the case input hash per mutation to isolate the binding under test",
+    "Independent recomputation of the secp256k1 half-order, the Transfer topic and RFC 6979 test vectors",
+    "Outbound network primitives trapped while verifying the full corpus",
+    "End-to-end reproduction of the pipeline finding with the pinned uv release"
+  ],
+  "findings": [
+    {
+      "id": "TPAI-1",
+      "severity": "medium",
+      "status": "open",
+      "title": "Pinned pipeline executes an unvalidated interpreter from a predictable path",
+      "publicSummary": "run-pinned.sh reuses an existing virtual environment interpreter at a predictable cache path without validating it, and runs both pipeline stages through it. Requires a local user on a shared host with an unset TMPDIR. Not applicable on macOS defaults or to the project CI, which sets the cache directory explicitly.",
+      "remediation": "Create the virtual environment in a directory the script owns, or verify the interpreter was produced by this script before using it."
+    },
+    {
+      "id": "TPAI-2",
+      "severity": "low",
+      "status": "open",
+      "title": "Settlement object does not apply the fail-closed policy used for the payload",
+      "publicSummary": "Unknown extensions are rejected in the payload and requirements but accepted in the settlement, which also accepts success true together with errorReason or errorMessage. Unevaluated and contradictory content can appear in a case marked consistent.",
+      "remediation": "Apply the same fail-closed check to settlement extensions and extra, and reject error fields when success is true."
+    },
+    {
+      "id": "TPAI-3",
+      "severity": "informational",
+      "status": "open",
+      "title": "Resource is not bound to the AP2 mandate and the boundary reads as though it were",
+      "publicSummary": "The verifier never reads the x402 payload resource, so its fields can change without affecting the decision. The implementation is correct because AP2 carries no equivalent field; the guarantee boundary is what reads wider than the exclusions state.",
+      "remediation": "Add a right-hand column entry stating the resource is not bound to the AP2 mandate."
+    },
+    {
+      "id": "TPAI-4",
+      "severity": "informational",
+      "status": "open",
+      "title": "Evidence RPC endpoint is not validated",
+      "publicSummary": "PULSE_EVM_RPC_URL is required to be non-empty but its scheme and shape are not validated, so a plaintext endpoint or a typo is used silently. Outside the declared offline boundary.",
+      "remediation": "Require https and validate the URL."
+    }
+  ],
+  "remediationSummary": "All four findings are open at the time of publication. None is critical or high. TPAI-1 was reported through the repository private vulnerability reporting form before publication.",
+  "residualRisk": "Bounded to the reviewed commit. The offline decision boundary held under every constructed input. The findings concern the surfaces around it and the regeneration pipeline. This review does not establish production readiness, protocol conformance, live settlement or custody assurance.",
+  "publishedUrl": "https://github.com/0xENX/PulseAP2X402Verifier/blob/PLACEHOLDER/docs/security-review/report.md"
+}
