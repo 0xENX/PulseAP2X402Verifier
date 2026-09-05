@@ -10,8 +10,8 @@ Reviewed commit `e06a6cbfe3ddb965c8fc70f50838f5014ec2038e`.
 - Independent of Prime Beat: true
 - Review date: 2026-09-05
 - Environment: macOS 15.3.2 arm64, Node v22.23.2, npm 10.9.8, Python 3.12.6, uv 0.10.11
-- Report URL: `<fill with this file's commit-pinned blob URL after publishing>`
-- Record URL: `<fill with security-review.json's commit-pinned blob URL after publishing>`
+- Report URL: https://github.com/0xENX/PulseAP2X402Verifier/blob/9e08942d4214afc79808b0eb09fc8abcc127867e/docs/security-review/report.md
+- Record URL: https://github.com/0xENX/PulseAP2X402Verifier/blob/9e08942d4214afc79808b0eb09fc8abcc127867e/docs/security-review/security-review.json
 
 TrustedPAI is a commercial pre-execution screening service for agentic
 payments. It has no commercial or contractual relationship with Prime Beat or

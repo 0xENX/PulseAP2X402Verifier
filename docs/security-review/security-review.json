@@ -63,5 +63,5 @@
   ],
   "remediationSummary": "All four findings are open at the time of publication. None is critical or high. TPAI-1 was reported through the repository private vulnerability reporting form before publication.",
   "residualRisk": "Bounded to the reviewed commit. The offline decision boundary held under every constructed input. The findings concern the surfaces around it and the regeneration pipeline. This review does not establish production readiness, protocol conformance, live settlement or custody assurance.",
-  "publishedUrl": "https://github.com/0xENX/PulseAP2X402Verifier/blob/PLACEHOLDER/docs/security-review/report.md"
+  "publishedUrl": "https://github.com/0xENX/PulseAP2X402Verifier/blob/9e08942d4214afc79808b0eb09fc8abcc127867e/docs/security-review/report.md"
 }
