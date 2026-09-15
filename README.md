@@ -2,6 +2,25 @@
 
 An independent offline evaluator for the AP2 Payment Mandate to x402 exact/EIP-3009 boundary in the pinned Pulse v0.3 corpus.
 
+Written and maintained by [Enrico Lorenzo De Vito](https://github.com/0xENX), who also
+builds [TrustedPAI](https://trustedpai.com) — pre-execution risk screening for
+agent-initiated payments.
+
+**The Pulse conformance corpus is not this project.** It belongs to
+[shibutatsu](https://github.com/shibutatsu/pulse-ap2-x402-conformance); this evaluator
+is an independent implementation that runs against it and claims nothing on its behalf.
+
+## Independent acceptance
+
+The maintainer of the Pulse corpus accepted this evaluator as **one of the two
+qualifying implementations outside the original author** for their release-evidence
+gate, and separately accepted the independent security review of their own verifier
+published here as satisfying a second gate — after replaying the record with their
+validator rather than taking the result on trust.
+
+Both are interoperability and review evidence. Neither is a production audit, a
+protocol certification, nor a release approval, and they are not presented as one.
+
 ## Scope
 
 The evaluator derives decisions and failure codes from the artifacts. It does not invoke a reference verifier and it does not read the fixture `expected` field.
@@ -37,7 +56,9 @@ The GitHub Actions workflow runs the same official validation and publishes the 
 
 ## Publication status
 
-This repository is intended to be published only after an explicit disclosure review. Until then, it is a local preparation workspace and does not constitute a public qualification claim.
+Published. This section previously said the repository was a local preparation
+workspace awaiting a disclosure review, which stopped being true when it was made
+public and left the text contradicting the acceptance recorded above.
 
 ## License
 
