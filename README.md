@@ -1,5 +1,11 @@
 # Pulse AP2 to x402 Verifier
 
+Built and maintained by **Enrico De Vito** ([@0xENX](https://github.com/0xENX)),
+author of [TrustedPAI](https://trustedpai.com) — pre-execution risk screening for
+agentic payments.
+
+Linkedin contacts: (https://www.linkedin.com/in/lorenzodevito)
+
 An independent offline evaluator for the AP2 Payment Mandate to x402 exact/EIP-3009 boundary in the pinned Pulse v0.3 corpus.
 
 Written and maintained by [Enrico Lorenzo De Vito](https://github.com/0xENX), who also
